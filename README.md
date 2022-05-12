@@ -7,3 +7,5 @@ Document any difficulties you faced and how you overcame them. Copy the object d
 **Frontend displayed but cannot create task**
 1. Front-end : Displays Todos V2 page but cannot create task
 2. API Pod seems to work : When tested with port forwarding 8081:8081, API responds
+
+
