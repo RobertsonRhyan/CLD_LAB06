@@ -15,3 +15,7 @@ spec:
     - redis-server 
     - --requirepass ccp2 
     - --appendonly yes
+    resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
