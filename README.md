@@ -4,6 +4,8 @@
 
 De Bleser Dimitri, Peer Vincent, Robertson Rhyan
 
+10.05.2022
+
 ### TASK 1 - DEPLOY THE APPLICATION ON A LOCAL TEST CLUSTER
 
 #### DELIVERABLES
@@ -105,3 +107,6 @@ Endpoints:         172.17.0.7:8081
 Session Affinity:  None
 Events:            <none>
 ```
+
+### TASK 2 - DEPLOY THE APPLICATION IN KUBERNETES ENGINE
+
