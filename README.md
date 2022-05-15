@@ -17,63 +17,39 @@ Frontend displays but cannot create task
 
 Solution : Typo in frontend-pod.yaml
 
-##### Objects
+#### Objects
 
-###### Frontend Service
-
-```bash
-$ kubectl describe svc/frontend-svc
-W0512 15:23:00.093324    4394 gcp.go:120] WARNING: the gcp auth plugin is deprecated in v1.22+, unavailable in v1.25+; use gcloud instead.
-To learn more, consult https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke
-Name:                     frontend-svc
-Namespace:                default
-Labels:                   component=frontend
-Annotations:              cloud.google.com/neg: {"ingress":true}
-Selector:                 app=todo,component=frontend
-Type:                     LoadBalancer
-IP Family Policy:         SingleStack
-IP Families:              IPv4
-IP:                       10.96.9.89
-IPs:                      10.96.9.89
-LoadBalancer Ingress:     34.116.195.249
-Port:                     frontend  80/TCP
-TargetPort:               8080/TCP
-NodePort:                 frontend  30131/TCP
-Endpoints:                10.92.0.4:8080
-Session Affinity:         None
-External Traffic Policy:  Cluster
-Events:                   <none>
-```
-
-###### Frontend Pod
+##### Frontend Pod
 
 ```bash
-$ kubectl describe po/frontend
-W0512 16:23:23.435813    5360 gcp.go:120] WARNING: the gcp auth plugin is deprecated in v1.22+, unavailable in v1.25+; use gcloud instead.
-To learn more, consult https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke
 Name:         frontend
 Namespace:    default
 Priority:     0
-Node:         gke-gke-cluster-1-default-pool-332f1c63-d12c/10.186.0.2
-Start Time:   Thu, 12 May 2022 13:30:51 +0200
+Node:         minikube/192.168.49.2
+Start Time:   Wed, 11 May 2022 17:57:59 +0200
 Labels:       app=todo
               component=frontend
 Annotations:  <none>
 Status:       Running
-IP:           10.92.0.4
+IP:           172.17.0.4
 IPs:
-  IP:  10.92.0.4
+  IP:  172.17.0.4
 Containers:
   frontend:
-    Container ID:   containerd://7ef993b2b8cea24d7f743dcdc040607c0b93b605b71b8a721b420b735523579b
+    Container ID:   docker://b42e38f5c5970bdf138ce786275f9993d17480d36b68e555ada3ddcd97c0d61a
     Image:          icclabcna/ccp2-k8s-todo-frontend
-    Image ID:       docker.io/icclabcna/ccp2-k8s-todo-frontend@sha256:5892b8f75a4dd3aa9d9cf527f8796a7638dba574ea8e6beef49360a3c67bbb44
+    Image ID:       docker-pullable://icclabcna/ccp2-k8s-todo-frontend@sha256:5892b8f75a4dd3aa9d9cf527f8796a7638dba574ea8e6beef49360a3c67bbb44
     Port:           8080/TCP
     Host Port:      0/TCP
     State:          Running
-      Started:      Thu, 12 May 2022 13:31:16 +0200
+      Started:      Sun, 15 May 2022 16:51:59 +0200
+    Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Wed, 11 May 2022 17:58:02 +0200
+      Finished:     Thu, 12 May 2022 13:21:37 +0200
     Ready:          True
-    Restart Count:  0
+    Restart Count:  1
     Limits:
       memory:  128Mi
     Requests:
@@ -81,7 +57,7 @@ Containers:
     Environment:
       API_ENDPOINT_URL:  http://api-svc:8081
     Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-z5gr8 (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-7jnfl (ro)
 Conditions:
   Type              Status
   Initialized       True
@@ -89,7 +65,7 @@ Conditions:
   ContainersReady   True
   PodScheduled      True
 Volumes:
-  kube-api-access-z5gr8:
+  kube-api-access-7jnfl:
     Type:                    Projected (a volume that contains injected data from multiple sources)
     TokenExpirationSeconds:  3607
     ConfigMapName:           kube-root-ca.crt
@@ -99,5 +75,33 @@ QoS Class:                   Burstable
 Node-Selectors:              <none>
 Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
-Events:                      <none>
+Events:
+  Type    Reason          Age   From     Message
+  ----    ------          ----  ----     -------
+  Normal  SandboxChanged  104s  kubelet  Pod sandbox changed, it will be killed and re-created.
+  Normal  Pulling         103s  kubelet  Pulling image "icclabcna/ccp2-k8s-todo-frontend"
+  Normal  Pulled          100s  kubelet  Successfully pulled image "icclabcna/ccp2-k8s-todo-frontend" in 2.17512712s
+  Normal  Created         100s  kubelet  Created container frontend
+  Normal  Started         100s  kubelet  Started container frontend
+```
+
+#### API Service
+
+```bash
+Name:              api-svc
+Namespace:         default
+Labels:            app=todo
+                   component=api
+Annotations:       <none>
+Selector:          app=todo,component=api
+Type:              ClusterIP
+IP Family Policy:  SingleStack
+IP Families:       IPv4
+IP:                10.103.253.173
+IPs:               10.103.253.173
+Port:              api  8081/TCP
+TargetPort:        8081/TCP
+Endpoints:         172.17.0.7:8081
+Session Affinity:  None
+Events:            <none>
 ```
