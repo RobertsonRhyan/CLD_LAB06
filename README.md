@@ -4,9 +4,11 @@
 
 De Bleser Dimitri, Peer Vincent, Robertson Rhyan
 
+10.05.2022
+
 ### TASK 1 - DEPLOY THE APPLICATION ON A LOCAL TEST CLUSTER
 
-#### DELIVERABLES
+#### Deliverables for Task 1
 
 > Document any difficulties you faced and how you overcame them. Copy the object descriptions into the lab report.
 
@@ -104,4 +106,163 @@ TargetPort:        8081/TCP
 Endpoints:         172.17.0.7:8081
 Session Affinity:  None
 Events:            <none>
+```
+
+### TASK 2 - DEPLOY THE APPLICATION IN KUBERNETES ENGINE
+
+#### Deliverables for Task 2
+
+> Document any difficulties you faced and how you overcame them. Copy the object descriptions into the lab report (if they are unchanged from the previous task just say so).
+
+No difficulties were encountered during this task. And the objects weren't changed from the previous task expect for the creation of frontend-svc descirbed bellow.
+
+>Take a screenshot of the cluster details from the GKE console. Copy the output of the kubectl describe command to describe your load balancer once completely initialized.
+
+![Cluster Details](/screenshots/task_02_01.png)
+
+Describe Load Balancer :
+```bash
+Name:                     frontend-svc
+Namespace:                default
+Labels:                   component=frontend
+Annotations:              cloud.google.com/neg: {"ingress":true}
+Selector:                 app=todo,component=frontend
+Type:                     LoadBalancer
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.96.9.89
+IPs:                      10.96.9.89
+LoadBalancer Ingress:     34.116.195.249
+Port:                     frontend  80/TCP
+TargetPort:               8080/TCP
+NodePort:                 frontend  30131/TCP
+Endpoints:                10.92.0.4:8080
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+```
+
+### TASK 3 - ADD AND EXERCISE RESILIENCE
+
+#### Deliverables for Task 3
+
+> Use only 1 instance for the Redis-Server. Why?
+
+We want to have the same data on all frontends, so we only want one DB.
+If we wanted to have multiple replicas of redis, we would use a StatefullSet instead of a Deployment.
+
+> What happens if you delete a Frontend or API Pod? How long does it take for the system to react?
+
+A new Pod is created before the original is even terminated as we can see below:
+
+```bash
+NAME                                   READY   STATUS    RESTARTS   AGE
+api-deployment-86d8969586-bwjjp        1/1     Running   0          9m43s
+api-deployment-86d8969586-wxqpv        1/1     Running   0          9m43s
+frontend-deployment-785865d54b-4p5zw   1/1     Running   0          5m50s
+frontend-deployment-785865d54b-tpjp2   1/1     Running   0          5m50s
+redis-deployement-6fbcc669d9-mrjj4     1/1     Running   0          15m
+----
+frontend-deployment-785865d54b-tpjp2   1/1     Terminating   0          5m88s
+frontend-deployment-785865d54b-zfp96   0/1     Pending       0          0s
+frontend-deployment-785865d54b-zfp96   0/1     Pending       0          0s
+frontend-deployment-785865d54b-zfp96   0/1     ContainerCreating   0          0s
+frontend-deployment-785865d54b-tpjp2   0/1     Terminating         0          5m89s
+frontend-deployment-785865d54b-zfp96   1/1     Running             0          3s
+frontend-deployment-785865d54b-tpjp2   0/1     Terminating         0          5m93s
+frontend-deployment-785865d54b-tpjp2   0/1     Terminating         0          5m93s
+```
+
+> What happens when you delete the Redis Pod?
+
+A new Pod is created but the data is lost. This is because the data is stored inside the Pod and not in a local or remote Volume, so it isn't persistent.
+
+The API stops working because it's still trying to query the old redis Pod, we need to restart the api pods for it to work again.
+
+> How can you change the number of instances temporarily to 3?
+
+In the "Deplyoment details" -> "Actions" -> "Scale" -> change 2 to 3.
+![Scale Deplyoment](/screenshots/task_03_01.png)
+
+> What autoscaling features are available? Which metrics are used?
+
+Features :
+
+- Minimum number of replicas
+- Maximum number of replicas
+
+Metrics :
+
+- CPU Utilization
+- Memory Utilization
+- Custom metrics
+- External metrics
+
+> How can you update a component? (see "Updating a Deployment" in the deployment documentation)
+
+You can use the `kubectl set` command.
+
+```bash
+kubectl set image deployment/redis-deployment redis=redis:7.0-alpine
+```
+
+or the `kubectl edit` command to edit the Deployment
+
+```bash
+kubectl edit deployment/redis-deployment
+```
+
+or the GUI via "Deplyoment details" -> "Actions" -> "Rolling update"
+
+Then you can follow the rollout status with:
+
+```bash
+$ kubectl rollout status deployment/redis-deployment
+
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+redis-deployment   1/1     1            1           22s
+```
+
+### SUBTASK 3.3 (OPTIONAL) - PUT AUTOSCALING IN PLACE AND LOAD-TEST IT
+
+On the GKE cluster deploy autoscaling on the Frontend with a target CPU utilization of 30% and number of replicas between 1 and 4. Load-test using JMeter.
+
+#### Deliverables for Task 3.3
+
+> Document your observations in the lab report. Document any difficulties you faced and how you overcame them. Copy the object descriptions into the lab report.
+
+Difficulties
+We had 1 difficulty with the Auto Scaling :
+![Auto Scaling](/screenshots/task_03_01_01.png)
+
+```bash
+NAME                                  READY   STATUS    RESTARTS   AGE
+api-deployment-86d8969586-5p4jx       1/1     Running   0          3h41m
+api-deployment-86d8969586-m9wdb       1/1     Running   0          3h41m
+frontend-deployment-b5669674f-tkkff   1/1     Running   0          3m29s
+redis-deployement-6fbcc669d9-krvj9    1/1     Running   0          3h41m
+frontend-deployment-b5669674f-dkkcr   0/1     Pending   0          0s
+frontend-deployment-b5669674f-dkkcr   0/1     Pending   0          0s
+frontend-deployment-b5669674f-dbmcl   0/1     Pending   0          0s
+frontend-deployment-b5669674f-dbmcl   0/1     Pending   0          0s
+frontend-deployment-b5669674f-78577   0/1     Pending   0          0s
+frontend-deployment-b5669674f-dkkcr   0/1     ContainerCreating   0          0s
+frontend-deployment-b5669674f-78577   0/1     Pending             0          0s
+frontend-deployment-b5669674f-dbmcl   0/1     ContainerCreating   0          0s
+frontend-deployment-b5669674f-78577   0/1     ContainerCreating   0          0s
+frontend-deployment-b5669674f-dbmcl   1/1     Running             0          2s
+frontend-deployment-b5669674f-dkkcr   1/1     Running             0          3s
+frontend-deployment-b5669674f-78577   1/1     Running             0          5s
+frontend-deployment-b5669674f-dbmcl   1/1     Terminating         0          6m31s
+frontend-deployment-b5669674f-dkkcr   1/1     Terminating         0          6m31s
+frontend-deployment-b5669674f-78577   1/1     Terminating         0          6m31s
+frontend-deployment-b5669674f-dkkcr   0/1     Terminating         0          6m32s
+frontend-deployment-b5669674f-78577   0/1     Terminating         0          6m32s
+frontend-deployment-b5669674f-dbmcl   0/1     Terminating         0          6m32s
+frontend-deployment-b5669674f-78577   0/1     Terminating         0          6m43s
+frontend-deployment-b5669674f-78577   0/1     Terminating         0          6m43s
+frontend-deployment-b5669674f-dkkcr   0/1     Terminating         0          6m43s
+frontend-deployment-b5669674f-dkkcr   0/1     Terminating         0          6m43s
+frontend-deployment-b5669674f-dbmcl   0/1     Terminating         0          6m44s
+frontend-deployment-b5669674f-dbmcl   0/1     Terminating         0          6m44s
 ```
