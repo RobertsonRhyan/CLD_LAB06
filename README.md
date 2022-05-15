@@ -141,3 +141,39 @@ Session Affinity:         None
 External Traffic Policy:  Cluster
 Events:                   <none>
 ```
+
+### TASK 3 - ADD AND EXERCISE RESILIENCE
+
+> Use only 1 instance for the Redis-Server. Why?
+
+We want to have the same data on all frontends, so we only want one DB.
+If we wanted to have multiple replicas of redis, we would use a StatefullSet instead of a Deployment.
+
+> What happens if you delete a Frontend or API Pod? How long does it take for the system to react?
+
+A new Pod is created before the original is even terminated as we can see below:
+
+```bash
+NAME                                   READY   STATUS    RESTARTS   AGE
+api-deployment-86d8969586-bwjjp        1/1     Running   0          9m43s
+api-deployment-86d8969586-wxqpv        1/1     Running   0          9m43s
+frontend-deployment-785865d54b-4p5zw   1/1     Running   0          5m50s
+frontend-deployment-785865d54b-tpjp2   1/1     Running   0          5m50s
+redis-deployement-6fbcc669d9-mrjj4     1/1     Running   0          15m
+----
+frontend-deployment-785865d54b-tpjp2   1/1     Terminating   0          5m88s
+frontend-deployment-785865d54b-zfp96   0/1     Pending       0          0s
+frontend-deployment-785865d54b-zfp96   0/1     Pending       0          0s
+frontend-deployment-785865d54b-zfp96   0/1     ContainerCreating   0          0s
+frontend-deployment-785865d54b-tpjp2   0/1     Terminating         0          5m89s
+frontend-deployment-785865d54b-zfp96   1/1     Running             0          3s
+frontend-deployment-785865d54b-tpjp2   0/1     Terminating         0          5m93s
+frontend-deployment-785865d54b-tpjp2   0/1     Terminating         0          5m93s
+```
+
+> What happens when you delete the Redis Pod?
+
+A new Pod is created but the data is lost. This is because the data is stored inside the Pod and not in a local or remote Volume, so it isn't persistent.
+
+The API stops working because it's still trying to query the old redis Pod, we need to restart the api pods for it to work again.
+
