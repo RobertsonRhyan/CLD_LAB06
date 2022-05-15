@@ -8,7 +8,7 @@ De Bleser Dimitri, Peer Vincent, Robertson Rhyan
 
 ### TASK 1 - DEPLOY THE APPLICATION ON A LOCAL TEST CLUSTER
 
-#### DELIVERABLES
+#### Deliverables for Task 1
 
 > Document any difficulties you faced and how you overcame them. Copy the object descriptions into the lab report.
 
@@ -110,3 +110,34 @@ Events:            <none>
 
 ### TASK 2 - DEPLOY THE APPLICATION IN KUBERNETES ENGINE
 
+#### Deliverables for Task 2
+
+> Document any difficulties you faced and how you overcame them. Copy the object descriptions into the lab report (if they are unchanged from the previous task just say so).
+
+No difficulties were encountered during this task. And the objects weren't changed from the previous task expect for the creation of frontend-svc descirbed bellow.
+
+>Take a screenshot of the cluster details from the GKE console. Copy the output of the kubectl describe command to describe your load balancer once completely initialized.
+
+![Cluster Details](/screenshots/task_02_01.png)
+
+Describe Load Balancer :
+```bash
+Name:                     frontend-svc
+Namespace:                default
+Labels:                   component=frontend
+Annotations:              cloud.google.com/neg: {"ingress":true}
+Selector:                 app=todo,component=frontend
+Type:                     LoadBalancer
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.96.9.89
+IPs:                      10.96.9.89
+LoadBalancer Ingress:     34.116.195.249
+Port:                     frontend  80/TCP
+TargetPort:               8080/TCP
+NodePort:                 frontend  30131/TCP
+Endpoints:                10.92.0.4:8080
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+```
