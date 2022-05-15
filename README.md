@@ -225,15 +225,54 @@ redis-deployment   1/1     1            1           22s
 
 ### SUBTASK 3.3 (OPTIONAL) - PUT AUTOSCALING IN PLACE AND LOAD-TEST IT
 
-On the GKE cluster deploy autoscaling on the Frontend with a target CPU utilization of 30% and number of replicas between 1 and 4. Load-test using JMeter.
-
 #### Deliverables for Task 3.3
 
 > Document your observations in the lab report. Document any difficulties you faced and how you overcame them. Copy the object descriptions into the lab report.
 
 Difficulties
 We had 1 difficulty with the Auto Scaling :
-![Auto Scaling](/screenshots/task_03_01_01.png)
+![Auto Scaling](/screenshots/task_03_03_01.png)
+As per the official Kubernetes documentation, resource request needs to be set.
+And so we could go down to 1 replica, we also changed the replicas value.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  labels:
+    app: todo
+    component: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: todo
+        component: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: icclabcna/ccp2-k8s-todo-frontend
+        ports:
+        - containerPort: 8080
+        env:
+        - name: API_ENDPOINT_URL
+          value: http://api-svc:8081
+        resources:
+          requests:
+            cpu: 100m
+```
+
+Theses are the Autoscale settings :
+
+![Auto Scaler](/screenshots/task_03_03_02.png)
+
+When load tested with JMeter, we can see the creation of 3 additional Pods, then after the test (about 5min), we can see them beeing terminated
 
 ```bash
 NAME                                  READY   STATUS    RESTARTS   AGE
