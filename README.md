@@ -502,7 +502,42 @@ spec:
 Description:
 
 ```bash
-
+Name:                   frontend-deployment
+Namespace:              default
+CreationTimestamp:      Mon, 16 May 2022 11:42:32 +0200
+Labels:                 app=todo
+                        component=frontend
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=todo,component=frontend
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=todo
+           component=frontend
+  Containers:
+   frontend:
+    Image:      icclabcna/ccp2-k8s-todo-frontend
+    Port:       8080/TCP
+    Host Port:  0/TCP
+    Requests:
+      cpu:  100m
+    Environment:
+      API_ENDPOINT_URL:  http://api-svc:8081
+    Mounts:              <none>
+  Volumes:               <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   frontend-deployment-b5669674f (1/1 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  94s   deployment-controller  Scaled up replica set frontend-deployment-b5669674f to 1
 ```
 
 Theses are the Autoscale settings :
@@ -541,4 +576,155 @@ frontend-deployment-b5669674f-dkkcr   0/1     Terminating         0          6m4
 frontend-deployment-b5669674f-dkkcr   0/1     Terminating         0          6m43s
 frontend-deployment-b5669674f-dbmcl   0/1     Terminating         0          6m44s
 frontend-deployment-b5669674f-dbmcl   0/1     Terminating         0          6m44s
+```
+
+### TASK 4 - DEPLOY ON IICT KUBERNETES CLUSTER
+
+#### Deliverables for Task 4
+
+> Document your observations in the lab report. Document any difficulties you faced and how you overcame them. Copy the object descriptions into the lab report
+
+No issues were encountered, everything worked fine :
+
+```bash
+kubectl get all -n l6grp
+NAME                                      READY   STATUS    RESTARTS   AGE
+pod/api-deployment-86d8969586-4g4tr       1/1     Running   0          110m
+pod/api-deployment-86d8969586-pltpb       1/1     Running   0          110m
+pod/frontend-deployment-b5669674f-gxxnk   1/1     Running   0          109m
+pod/frontend-deployment-b5669674f-swhpl   1/1     Running   0          109m
+pod/redis-deployement-6fbcc669d9-ctgfx    1/1     Running   0          111m
+
+NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP     PORT(S)        AGE
+service/api-svc        ClusterIP      10.43.118.89   <none>          8081/TCP       73m
+service/frontend-svc   LoadBalancer   10.43.115.50   10.193.72.108   80:31536/TCP   111m
+service/redis-svc      ClusterIP      10.43.67.70    <none>          6379/TCP       134m
+
+NAME                                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/api-deployment        2/2     2            2           110m
+deployment.apps/frontend-deployment   2/2     2            2           109m
+deployment.apps/redis-deployement     1/1     1            1           111m
+
+NAME                                            DESIRED   CURRENT   READY   AGE
+replicaset.apps/api-deployment-86d8969586       2         2         2       110m
+replicaset.apps/frontend-deployment-b5669674f   2         2         2       109m
+replicaset.apps/redis-deployement-6fbcc669d9    1         1         1       111m
+````
+
+**Objects**
+
+Frontend Deployment Description :
+
+```bash
+Name:                   frontend-deployment
+Namespace:              l6grp
+CreationTimestamp:      Mon, 16 May 2022 09:59:06 +0200
+Labels:                 app=todo
+                        component=frontend
+Annotations:            deployment.kubernetes.io/revision: 1
+                        field.cattle.io/publicEndpoints:
+                          [{"addresses":["10.193.72.108"],"port":80,"protocol":"TCP","serviceName":"l6grp:frontend-svc","allNodes":false}]
+Selector:               app=todo,component=frontend
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=todo
+           component=frontend
+  Containers:
+   frontend:
+    Image:      icclabcna/ccp2-k8s-todo-frontend
+    Port:       8080/TCP
+    Host Port:  0/TCP
+    Requests:
+      cpu:  100m
+    Environment:
+      API_ENDPOINT_URL:  http://api-svc:8081
+    Mounts:              <none>
+  Volumes:               <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   frontend-deployment-b5669674f (2/2 replicas created)
+Events:          <none>
+```
+
+API Deployment Description :
+
+```bash
+Name:                   api-deployment
+Namespace:              l6grp
+CreationTimestamp:      Mon, 16 May 2022 09:58:11 +0200
+Labels:                 app=todo
+                        component=api
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=todo,component=api
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=todo
+           component=api
+  Containers:
+   api:
+    Image:      icclabcna/ccp2-k8s-todo-api
+    Port:       8081/TCP
+    Host Port:  0/TCP
+    Environment:
+      REDIS_ENDPOINT:  redis-svc
+      REDIS_PWD:       ccp2
+    Mounts:            <none>
+  Volumes:             <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   api-deployment-86d8969586 (2/2 replicas created)
+Events:          <none>
+```
+
+REDIS Deployment Description :
+
+```bash
+Name:                   redis-deployement
+Namespace:              l6grp
+CreationTimestamp:      Mon, 16 May 2022 09:58:05 +0200
+Labels:                 app=todo
+                        component=redis
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=todo,component=redis
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=todo
+           component=redis
+  Containers:
+   redis:
+    Image:      redis
+    Port:       6379/TCP
+    Host Port:  0/TCP
+    Args:
+      redis-server
+      --requirepass ccp2
+      --appendonly yes
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   redis-deployement-6fbcc669d9 (1/1 replicas created)
+Events:          <none>
 ```
