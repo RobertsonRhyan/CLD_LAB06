@@ -231,7 +231,9 @@ redis-deployment   1/1     1            1           22s
 
 Difficulties
 We had 1 difficulty with the Auto Scaling :
+
 ![Auto Scaling](/screenshots/task_03_03_01.png)
+
 As per the official Kubernetes documentation, resource request needs to be set.
 And so we could go down to 1 replica, we also changed the replicas value.
 
