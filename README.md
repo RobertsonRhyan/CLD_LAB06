@@ -19,9 +19,9 @@ Frontend displays but cannot create task
 
 Solution : Typo in frontend-pod.yaml
 
-#### Objects
+**Objects**
 
-##### Frontend Pod
+Frontend Pod:
 
 ```bash
 Name:         frontend
@@ -87,7 +87,7 @@ Events:
   Normal  Started         100s  kubelet  Started container frontend
 ```
 
-#### API Service
+API Service:
 
 ```bash
 Name:              api-svc
@@ -121,6 +121,7 @@ No difficulties were encountered during this task. And the objects weren't chang
 ![Cluster Details](/screenshots/task_02_01.png)
 
 Describe Load Balancer :
+
 ```bash
 Name:                     frontend-svc
 Namespace:                default
@@ -223,6 +224,234 @@ NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 redis-deployment   1/1     1            1           22s
 ```
 
+> Document your observations in the lab report. Document any difficulties you faced and how you overcame them. Copy the object descriptions into the lab report.
+
+**Objects**
+
+Frontend Deployment:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  labels:
+    app: todo
+    component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todo
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: todo
+        component: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: icclabcna/ccp2-k8s-todo-frontend
+        ports:
+        - containerPort: 8080
+        env:
+        - name: API_ENDPOINT_URL
+          value: http://api-svc:8081
+```
+
+Frontend Deplyoment Description:
+
+```bash
+Name:                   frontend-deployment
+Namespace:              default
+CreationTimestamp:      Mon, 16 May 2022 11:34:31 +0200
+Labels:                 app=todo
+                        component=frontend
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=todo,component=frontend
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=todo
+           component=frontend
+  Containers:
+   frontend:
+    Image:      icclabcna/ccp2-k8s-todo-frontend
+    Port:       8080/TCP
+    Host Port:  0/TCP
+    Requests:
+      cpu:  100m
+    Environment:
+      API_ENDPOINT_URL:  http://api-svc:8081
+    Mounts:              <none>
+  Volumes:               <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   frontend-deployment-b5669674f (2/2 replicas created)
+Events:
+  Type    Reason             Age    From                   Message
+  ----    ------             ----   ----                   -------
+  Normal  ScalingReplicaSet  2m32s  deployment-controller  Scaled up replica set frontend-deployment-b5669674f to 2
+```
+
+
+API deployment:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  labels:
+    app: todo
+    component: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todo
+      component: api
+  template:
+    metadata:
+      labels:
+        app: todo
+        component: api
+    spec:
+      containers:
+      - name: api
+        image: icclabcna/ccp2-k8s-todo-api
+        ports:
+        - containerPort: 8081
+        env:
+        - name: REDIS_ENDPOINT
+          value: redis-svc
+        - name: REDIS_PWD
+          value: ccp2
+```
+
+API Deplyoment Description:
+
+```bash
+Name:                   api-deployment
+Namespace:              default
+CreationTimestamp:      Mon, 16 May 2022 11:34:24 +0200
+Labels:                 app=todo
+                        component=api
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=todo,component=api
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=todo
+           component=api
+  Containers:
+   api:
+    Image:      icclabcna/ccp2-k8s-todo-api
+    Port:       8081/TCP
+    Host Port:  0/TCP
+    Environment:
+      REDIS_ENDPOINT:  redis-svc
+      REDIS_PWD:       ccp2
+    Mounts:            <none>
+  Volumes:             <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   api-deployment-86d8969586 (2/2 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  67s   deployment-controller  Scaled up replica set api-deployment-86d8969586 to 2
+```
+
+
+REDIS Deployment:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployement
+  labels:
+    app: todo
+    component: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo
+      component: redis
+  template:
+    metadata:
+      labels:
+        app: todo
+        component: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        ports:
+        - containerPort: 6379
+        args:
+        - redis-server 
+        - --requirepass ccp2 
+        - --appendonly yes
+```
+
+REDIS Deployment Description:
+
+```bash
+Name:                   redis-deployement
+Namespace:              default
+CreationTimestamp:      Mon, 16 May 2022 11:34:18 +0200
+Labels:                 app=todo
+                        component=redis
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=todo,component=redis
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=todo
+           component=redis
+  Containers:
+   redis:
+    Image:      redis
+    Port:       6379/TCP
+    Host Port:  0/TCP
+    Args:
+      redis-server
+      --requirepass ccp2
+      --appendonly yes
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   redis-deployement-6fbcc669d9 (1/1 replicas created)
+Events:
+  Type    Reason             Age    From                   Message
+  ----    ------             ----   ----                   -------
+  Normal  ScalingReplicaSet  4m59s  deployment-controller  Scaled up replica set redis-deployement-6fbcc669d9 to 1
+```
+
 ### SUBTASK 3.3 (OPTIONAL) - PUT AUTOSCALING IN PLACE AND LOAD-TEST IT
 
 #### Deliverables for Task 3.3
@@ -268,6 +497,12 @@ spec:
         resources:
           requests:
             cpu: 100m
+```
+
+Description:
+
+```bash
+
 ```
 
 Theses are the Autoscale settings :
