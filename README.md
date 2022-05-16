@@ -87,6 +87,8 @@ Events:
   Normal  Started         100s  kubelet  Started container frontend
 ```
 
+<div class="page-break"></div>
+
 API Service:
 
 ```bash
@@ -107,6 +109,8 @@ Endpoints:         172.17.0.7:8081
 Session Affinity:  None
 Events:            <none>
 ```
+
+<div class="page-break"></div>
 
 ### TASK 2 - DEPLOY THE APPLICATION IN KUBERNETES ENGINE
 
@@ -142,6 +146,8 @@ Session Affinity:         None
 External Traffic Policy:  Cluster
 Events:                   <none>
 ```
+
+<div class="page-break"></div>
 
 ### TASK 3 - ADD AND EXERCISE RESILIENCE
 
@@ -183,6 +189,7 @@ The API stops working because it's still trying to query the old redis Pod, we n
 > How can you change the number of instances temporarily to 3?
 
 In the "Deplyoment details" -> "Actions" -> "Scale" -> change 2 to 3.
+
 ![Scale Deplyoment](/screenshots/task_03_01.png)
 
 > What autoscaling features are available? Which metrics are used?
@@ -260,6 +267,8 @@ spec:
           value: http://api-svc:8081
 ```
 
+<div class="page-break"></div>
+
 Frontend Deplyoment Description:
 
 ```bash
@@ -301,6 +310,7 @@ Events:
   Normal  ScalingReplicaSet  2m32s  deployment-controller  Scaled up replica set frontend-deployment-b5669674f to 2
 ```
 
+<div class="page-break"></div>
 
 API deployment:
 
@@ -335,6 +345,8 @@ spec:
         - name: REDIS_PWD
           value: ccp2
 ```
+
+<div class="page-break"></div>
 
 API Deplyoment Description:
 
@@ -376,6 +388,7 @@ Events:
   Normal  ScalingReplicaSet  67s   deployment-controller  Scaled up replica set api-deployment-86d8969586 to 2
 ```
 
+<div class="page-break"></div>
 
 REDIS Deployment:
 
@@ -409,6 +422,8 @@ spec:
         - --requirepass ccp2 
         - --appendonly yes
 ```
+
+<div class="page-break"></div>
 
 REDIS Deployment Description:
 
@@ -451,6 +466,8 @@ Events:
   ----    ------             ----   ----                   -------
   Normal  ScalingReplicaSet  4m59s  deployment-controller  Scaled up replica set redis-deployement-6fbcc669d9 to 1
 ```
+
+<div class="page-break"></div>
 
 ### SUBTASK 3.3 (OPTIONAL) - PUT AUTOSCALING IN PLACE AND LOAD-TEST IT
 
@@ -578,6 +595,8 @@ frontend-deployment-b5669674f-dbmcl   0/1     Terminating         0          6m4
 frontend-deployment-b5669674f-dbmcl   0/1     Terminating         0          6m44s
 ```
 
+<div class="page-break"></div>
+
 ### TASK 4 - DEPLOY ON IICT KUBERNETES CLUSTER
 
 #### Deliverables for Task 4
@@ -610,6 +629,8 @@ replicaset.apps/api-deployment-86d8969586       2         2         2       110m
 replicaset.apps/frontend-deployment-b5669674f   2         2         2       109m
 replicaset.apps/redis-deployement-6fbcc669d9    1         1         1       111m
 ````
+
+<div class="page-break"></div>
 
 **Objects**
 
@@ -653,6 +674,8 @@ NewReplicaSet:   frontend-deployment-b5669674f (2/2 replicas created)
 Events:          <none>
 ```
 
+<div class="page-break"></div>
+
 API Deployment Description :
 
 ```bash
@@ -689,6 +712,8 @@ OldReplicaSets:  <none>
 NewReplicaSet:   api-deployment-86d8969586 (2/2 replicas created)
 Events:          <none>
 ```
+
+<div class="page-break"></div>
 
 REDIS Deployment Description :
 
