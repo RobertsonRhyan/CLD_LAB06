@@ -118,7 +118,7 @@ Events:            <none>
 
 > Document any difficulties you faced and how you overcame them. Copy the object descriptions into the lab report (if they are unchanged from the previous task just say so).
 
-No difficulties were encountered during this task. And the objects weren't changed from the previous task expect for the creation of frontend-svc descirbed bellow.
+No difficulties were encountered during this task. And the objects weren't changed from the previous task expect for the creation of frontend-svc described bellow.
 
 >Take a screenshot of the cluster details from the GKE console. Copy the output of the kubectl describe command to describe your load balancer once completely initialized.
 
@@ -188,7 +188,7 @@ The API stops working because it's still trying to query the old redis Pod, we n
 
 > How can you change the number of instances temporarily to 3?
 
-In the "Deplyoment details" -> "Actions" -> "Scale" -> change 2 to 3.
+In the "Deployment details" -> "Actions" -> "Scale" -> change 2 to 3.
 
 ![Scale Deplyoment](/screenshots/task_03_01.png)
 
